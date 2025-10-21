@@ -82,7 +82,7 @@ class RagService:
     def _answer(self, messages: List[Dict[str, str]]) -> Dict[str, Any]:
         start = time.time()
         resp = self.openai.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             messages=messages,
             temperature=0.3,
         )

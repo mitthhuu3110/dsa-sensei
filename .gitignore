@@ -205,3 +205,33 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# DSA-Sensei additions
+# Frontend build artifacts and deps
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
+# OS files
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Secrets and envs (keep example tracked)
+.env
+.env.*
+!.env.example
+
+# Editors/IDEs
+.vscode/
+.idea/
+*.swp
+
+# Docker compose local overrides
+docker-compose.override.yml
+**/*.local.yml

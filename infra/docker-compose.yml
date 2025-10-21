@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   dsasensei-postgres:
     image: postgres:15

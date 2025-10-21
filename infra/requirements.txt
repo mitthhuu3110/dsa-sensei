@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+python-dotenv
+pydantic
+sqlalchemy
+alembic
+openai
+langchain
+llama-index
+qdrant-client
+sentence-transformers
+transformers
+requests
+sentry-sdk
+pytest
+black
+isort
