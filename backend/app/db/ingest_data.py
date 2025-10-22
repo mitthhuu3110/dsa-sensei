@@ -46,7 +46,8 @@ def chunk_text(text: str, size: int = 500, overlap: int = 50) -> List[str]:
 
 
 def main() -> None:
-    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data"))
+    # backend/app/db -> repo_root/data (go up 3 to backend, 1 more to repo root)
+    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../data"))
     qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
     client = QdrantClient(url=qdrant_url)
     # Prepare embedder

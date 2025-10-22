@@ -76,26 +76,60 @@ class RagService:
             return docs
 
         try:
-            data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data"))
+            # backend/app/services -> repo_root/data
+            data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../data"))
             paths = []
             for root, _, files in os.walk(data_dir):
                 for fn in files:
                     if fn.endswith((".txt", ".md")):
                         paths.append(os.path.join(root, fn))
             query_lower = query.lower()
+            tokens = [t for t in query_lower.replace("\n", " ").split() if t]
             candidates: List[Dict[str, Any]] = []
+
+            # Prioritize filename matches
+            def score_path(pth: str, content_lc: str) -> int:
+                name = os.path.basename(pth).lower()
+                score = 0
+                for t in tokens:
+                    if t in name:
+                        score += 2
+                    if t in content_lc:
+                        score += 1
+                return score
+
+            scored: List[tuple[int, str]] = []
+            cache_content: Dict[str, str] = {}
             for pth in paths:
                 with open(pth, "r", encoding="utf-8", errors="ignore") as f:
                     content = f.read()
-                if any(token in content.lower() for token in query_lower.split()):
-                    # Take a slice around first occurrence
-                    idx = content.lower().find(query_lower.split()[0])
-                    start = max(0, idx - 300)
-                    end = min(len(content), start + 800)
-                    snippet = content[start:end]
-                    candidates.append({"text": snippet, "source": os.path.relpath(pth, data_dir), "score": 0.0})
-                if len(candidates) >= k:
-                    break
+                content_lc = content.lower()
+                cache_content[pth] = content
+                s = score_path(pth, content_lc)
+                if s > 0:
+                    scored.append((s, pth))
+
+            # If nothing scored, still return first file snippet as a fallback
+            if not scored and paths:
+                pth = paths[0]
+                content = cache_content.get(pth)
+                if content is None:
+                    with open(pth, "r", encoding="utf-8", errors="ignore") as f:
+                        content = f.read()
+                snippet = content[:800]
+                return [{"text": snippet, "source": os.path.relpath(pth, data_dir), "score": 0.0}]
+
+            scored.sort(reverse=True)
+            for _, pth in scored[:k]:
+                content = cache_content[pth]
+                content_lc = content.lower()
+                # pick first token occurrence among tokens
+                idxs = [content_lc.find(t) for t in tokens if content_lc.find(t) != -1]
+                anchor = min(idxs) if idxs else 0
+                start = max(0, anchor - 300)
+                end = min(len(content), start + 800)
+                snippet = content[start:end]
+                candidates.append({"text": snippet, "source": os.path.relpath(pth, data_dir), "score": 0.0})
             return candidates
         except Exception:
             return []
