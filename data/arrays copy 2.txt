@@ -1,0 +1,21 @@
+# Greedy Algorithms
+
+## Overview
+Greedy algorithms make the locally optimal choice at each step 
+with the hope of finding the global optimum.
+
+## Common Patterns
+- Sorting + selection
+- Interval scheduling
+- Minimum coins / jumps
+- Huffman Coding
+
+## Common Problems
+- Activity selection problem
+- Fractional knapsack
+- Minimum number of platforms
+- Jump Game
+
+## Example Problem
+Given start and end times of activities, select maximum number 
+of activities that can be performed by a single person.

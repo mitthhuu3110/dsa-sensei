@@ -1,0 +1,21 @@
+# Graph Algorithms
+
+## Overview
+Graphs represent relationships between entities. 
+Commonly represented using adjacency lists or matrices.
+
+## Common Techniques
+- BFS / DFS
+- Topological Sort
+- Dijkstra’s / Bellman-Ford
+- Union-Find (Disjoint Set)
+- Kruskal’s / Prim’s for MST
+
+## Common Problems
+- Detect cycle in graph
+- Number of islands
+- Shortest path in weighted graph
+- Course schedule
+
+## Example Problem
+Given a 2D grid of ‘1’s and ‘0’s, find the number of islands.

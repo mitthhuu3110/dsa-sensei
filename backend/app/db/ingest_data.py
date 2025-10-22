@@ -26,7 +26,7 @@ def read_texts(data_dir: str) -> List[dict]:
     return texts
 
 
-def chunk_text(text: str, size: int = 800, overlap: int = 100) -> List[str]:
+def chunk_text(text: str, size: int = 500, overlap: int = 50) -> List[str]:
     chunks = []
     start = 0
     while start < len(text):
@@ -44,42 +44,51 @@ def main() -> None:
     client = QdrantClient(url=qdrant_url)
     openai = OpenAI()
 
-    # Ensure collection
+    # Ensure collection (no drop/recreate to avoid churn)
     try:
-        client.recreate_collection(
+        exists = client.collection_exists(collection_name=COLLECTION_NAME)
+    except Exception:
+        exists = False
+
+    if not exists:
+        client.create_collection(
             collection_name=COLLECTION_NAME,
             vectors_config=qmodels.VectorParams(size=EMBED_DIM, distance=qmodels.Distance.COSINE),
         )
-    except Exception:
-        pass
 
     docs = read_texts(data_dir)
-    payloads = []
-    vectors = []
-    ids = []
-
-    for doc in docs:
-        for chunk in chunk_text(doc["text"]):
-            payloads.append({"text": chunk, "source": doc["source"]})
-
-    if not payloads:
+    if not docs:
         print("No data found to ingest.")
         return
 
-    # Embed in batches
-    BATCH = 64
-    for i in range(0, len(payloads), BATCH):
-        batch = payloads[i:i+BATCH]
-        texts = [p["text"] for p in batch]
-        emb = openai.embeddings.create(model="text-embedding-3-small", input=texts)
-        vectors.extend([d.embedding for d in emb.data])
-        ids.extend([str(uuid.uuid4()) for _ in batch])
+    # Stream embeddings and upserts per batch to keep memory low
+    BATCH = 4
+    total_chunks = 0
+    batch_payloads: List[dict] = []
 
-    client.upsert(
-        collection_name=COLLECTION_NAME,
-        points=qmodels.Batch(ids=ids, vectors=vectors, payloads=payloads),
-    )
-    print(f"Ingested {len(payloads)} chunks into '{COLLECTION_NAME}'.")
+    def flush_batch(payloads_batch: List[dict]) -> int:
+        if not payloads_batch:
+            return 0
+        texts = [p["text"] for p in payloads_batch]
+        emb = openai.embeddings.create(model="text-embedding-3-small", input=texts)
+        vecs = [d.embedding for d in emb.data]
+        ids = [str(uuid.uuid4()) for _ in payloads_batch]
+        client.upsert(
+            collection_name=COLLECTION_NAME,
+            points=qmodels.Batch(ids=ids, vectors=vecs, payloads=payloads_batch),
+        )
+        return len(payloads_batch)
+
+    for doc in docs:
+        for chunk in chunk_text(doc["text"]):
+            batch_payloads.append({"text": chunk, "source": doc["source"]})
+            if len(batch_payloads) >= BATCH:
+                total_chunks += flush_batch(batch_payloads)
+                batch_payloads = []
+
+    # Flush remaining
+    total_chunks += flush_batch(batch_payloads)
+    print(f"Ingested {total_chunks} chunks into '{COLLECTION_NAME}'.")
 
 
 if __name__ == "__main__":

@@ -35,9 +35,9 @@ rag_service = RagService()
 
 # Testing Sentry 
 
-# @app.get("/sentry-debug")
-# async def trigger_error():
-#     division_by_zero = 1 / 0
+@app.api_route("/sentry-debug", methods=["GET", "POST"])
+async def trigger_error():
+    division_by_zero = 1 / 2
 
 
 class AskRequest(BaseModel):

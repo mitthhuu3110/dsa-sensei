@@ -1,0 +1,20 @@
+# Recursion & Backtracking
+
+## Overview
+These involve exploring multiple possible solutions via recursion. 
+Backtracking undoes previous decisions when they don’t lead to a valid solution.
+
+## Common Patterns
+- Generate all subsets / permutations
+- N-Queens / Sudoku
+- Combination Sum variations
+- Maze pathfinding
+
+## Common Problems
+- Subset Sum
+- Permutations of a string
+- Rat in a maze
+- Word Search
+
+## Example Problem
+Given an array of distinct integers, return all possible subsets (the power set).

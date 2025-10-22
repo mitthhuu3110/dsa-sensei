@@ -1,0 +1,21 @@
+# Binary Search
+
+## Overview
+Binary search is an efficient algorithm for finding elements or boundaries 
+in a sorted array or monotonic function — typically O(log n).
+
+## Common Patterns
+- Searching in sorted arrays
+- Finding lower/upper bounds
+- Searching on the answer (min/max conditions)
+- Rotated sorted arrays
+
+## Common Problems
+- Find first and last occurrence of a number
+- Find square root (integer)
+- Search in rotated sorted array
+- Minimize maximum distance to gas station
+
+## Example Problem
+Given an array sorted in ascending order, find the index of a target element. 
+If not found, return -1.

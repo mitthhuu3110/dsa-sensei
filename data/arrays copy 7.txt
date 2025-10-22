@@ -1,0 +1,18 @@
+# Sliding Window
+
+## Overview
+Used when the problem involves subarrays/substrings or ranges 
+and can be optimized by maintaining a “window” of elements.
+
+## Types
+- Fixed window (e.g., size k)
+- Variable window (based on condition)
+
+## Common Problems
+- Maximum sum subarray of size K
+- Longest substring without repeating characters
+- Minimum window substring
+- Count distinct elements in every window
+
+## Example Problem
+Given a string, find the length of the longest substring with all unique characters.

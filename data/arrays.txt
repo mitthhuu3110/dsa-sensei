@@ -1,0 +1,23 @@
+# Arrays
+
+## Overview
+An array is a collection of elements stored in contiguous memory locations. 
+Most problems around arrays focus on iteration, partitioning, searching, 
+sorting, and applying certain constraints efficiently.
+
+## Common Patterns
+- Prefix Sum / Cumulative Sum
+- Kadane’s Algorithm
+- Sorting + Two Pointers
+- HashMap-based lookups
+- Difference Array Technique
+
+## Common Problems
+- Two Sum
+- Maximum Subarray Sum
+- Merge Intervals
+- Product of Array Except Self
+- Find Missing Number
+
+## Example Problem
+Given an array of integers, find the length of the longest subarray with sum 0.

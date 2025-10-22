@@ -1,0 +1,18 @@
+# Two Pointers
+
+## Overview
+Two pointers technique is used when you can use two indices to process elements 
+from different ends or directions to reduce complexity from O(n^2) to O(n).
+
+## Common Patterns
+- Opposite direction (left and right)
+- Same direction (slow and fast pointer)
+
+## Common Problems
+- Pair with target sum
+- Remove duplicates from sorted array
+- Sort colors (Dutch National Flag)
+- Trapping rain water
+
+## Example Problem
+Given a sorted array and a target, find if there exists a pair that sums to target.
