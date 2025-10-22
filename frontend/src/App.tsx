@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 
 interface Message {
@@ -7,11 +7,16 @@ interface Message {
 }
 
 export default function App() {
-  const [userId, setUserId] = useState('user-1')
-  const [input, setInput] = useState('Explain two pointers technique with examples.')
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
+  const [input, setInput] = useState('Explain Binary technique with examples.')
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
 
   const ask = async () => {
     if (!input.trim()) return
@@ -23,7 +28,7 @@ export default function App() {
 
     try {
       const res = await axios.post('http://localhost:8000/ask', {
-        user_id: userId,
+        user_id: 'Charan',
         question: userMsg.content,
       })
       const answer: string = res.data?.answer ?? 'No answer.'
@@ -46,9 +51,10 @@ export default function App() {
     <div className="container">
       <header>
         <h1>DSA-Sensei</h1>
-        <div className="user">
-          <label>User ID</label>
-          <input value={userId} onChange={e => setUserId(e.target.value)} />
+        <div className="controls">
+          <button className="toggle" onClick={() => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'))}>
+            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          </button>
         </div>
       </header>
 
