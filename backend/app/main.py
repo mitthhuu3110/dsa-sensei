@@ -27,11 +27,17 @@ try:
 
     SENTRY_DSN = os.getenv("SENTRY_DSN")
     if SENTRY_DSN:
-        sentry_sdk.init(dsn=SENTRY_DSN, traces_sample_rate=0.2)
+        sentry_sdk.init(dsn=SENTRY_DSN, traces_sample_rate=0.2,send_default_pii=True)
 except Exception:
     pass
 
 rag_service = RagService()
+
+# Testing Sentry 
+
+# @app.get("/sentry-debug")
+# async def trigger_error():
+#     division_by_zero = 1 / 0
 
 
 class AskRequest(BaseModel):
