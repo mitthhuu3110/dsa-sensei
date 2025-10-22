@@ -15,7 +15,6 @@ except Exception:  # pragma: no cover
 
 load_dotenv()
 
-COLLECTION_NAME = "dsa_docs"
 EMBED_DIM_OPENAI = 1536  # text-embedding-3-small
 LOCAL_EMBED_MODEL = os.getenv("LOCAL_EMBED_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 
@@ -26,21 +25,23 @@ class RagService:
         self.client = QdrantClient(url=self.qdrant_url)
         self.embedding_provider = os.getenv("EMBEDDING_PROVIDER", "local").lower()
         self.openai = OpenAI()
+        # Use provider-specific collection to avoid vector-size mismatches
+        self.collection_name = f"dsa_docs_{self.embedding_provider}"
         self._ensure_collection()
         self._local_embedder = None
 
     def _ensure_collection(self) -> None:
         # Create if missing, do not drop existing collection
         try:
-            if not self.client.collection_exists(collection_name=COLLECTION_NAME):
+            if not self.client.collection_exists(collection_name=self.collection_name):
                 # Choose vector size based on provider
                 size = EMBED_DIM_OPENAI if self.embedding_provider == "openai" else 384
                 self.client.create_collection(
-                    collection_name=COLLECTION_NAME,
+                    collection_name=self.collection_name,
                     vectors_config=qmodels.VectorParams(size=size, distance=qmodels.Distance.COSINE),
                 )
         except Exception as e:
-            raise RuntimeError(f"Failed ensuring collection '{COLLECTION_NAME}': {e}")
+            raise RuntimeError(f"Failed ensuring collection '{self.collection_name}': {e}")
 
     def _embed(self, texts: List[str]) -> List[List[float]]:
         if self.embedding_provider == "openai":
@@ -57,7 +58,7 @@ class RagService:
     def _search(self, query: str, k: int = 3) -> List[Dict[str, Any]]:
         query_vec = self._embed([query])[0]
         res = self.client.search(
-            collection_name=COLLECTION_NAME,
+            collection_name=self.collection_name,
             query_vector=query_vec,
             limit=k,
             with_payload=True,
@@ -70,7 +71,34 @@ class RagService:
                 "source": payload.get("source", ""),
                 "score": float(p.score),
             })
-        return docs
+        # Filesystem fallback if nothing retrieved (e.g., empty collection)
+        if docs:
+            return docs
+
+        try:
+            data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data"))
+            paths = []
+            for root, _, files in os.walk(data_dir):
+                for fn in files:
+                    if fn.endswith((".txt", ".md")):
+                        paths.append(os.path.join(root, fn))
+            query_lower = query.lower()
+            candidates: List[Dict[str, Any]] = []
+            for pth in paths:
+                with open(pth, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                if any(token in content.lower() for token in query_lower.split()):
+                    # Take a slice around first occurrence
+                    idx = content.lower().find(query_lower.split()[0])
+                    start = max(0, idx - 300)
+                    end = min(len(content), start + 800)
+                    snippet = content[start:end]
+                    candidates.append({"text": snippet, "source": os.path.relpath(pth, data_dir), "score": 0.0})
+                if len(candidates) >= k:
+                    break
+            return candidates
+        except Exception:
+            return []
 
     def _compose_prompt(self, question: str, contexts: List[Dict[str, Any]]) -> List[Dict[str, str]]:
         ctx_block = "\n\n".join([f"[Source: {c['source']}]\n{c['text']}" for c in contexts]) if contexts else ""

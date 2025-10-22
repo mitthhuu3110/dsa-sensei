@@ -49,7 +49,8 @@ class AskRequest(BaseModel):
 def ask(req: AskRequest) -> Dict[str, Any]:
     start = time.time()
     try:
-        result = rag_service.answer_question(user_id=req.user_id, question=req.question)
+        # Enforce single super-user
+        result = rag_service.answer_question(user_id="Charan", question=req.question)
         result["latency_ms"] = int((time.time() - start) * 1000)
         return result
     except Exception as e:
