@@ -1,0 +1,249 @@
+# Topic: Binary Search
+
+---
+
+## 1. Concept Overview
+
+Binary Search is a **divide-and-conquer algorithm** used to find an element or decision boundary in a **sorted array or monotonic function**.  
+Instead of checking every element, it repeatedly divides the search space in half — achieving **O(log n)** time complexity.
+
+You can apply it on:
+- Sorted arrays
+- Monotonic sequences (increasing/decreasing)
+- Answer search (when the answer space is numeric and monotonic)
+
+---
+
+## 2. Algorithm Intuition
+
+We maintain two pointers: `low` and `high`.  
+We check the middle element `mid = (low + high) / 2`.  
+If the target is smaller, move `high = mid - 1`, else move `low = mid + 1`.  
+Repeat until `low > high`.
+
+### Template Code (Iterative - C++)
+```cpp
+int binarySearch(vector<int>& arr, int target) {
+    int low = 0, high = arr.size() - 1;
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (arr[mid] == target) return mid;
+        else if (arr[mid] < target) low = mid + 1;
+        else high = mid - 1;
+    }
+    return -1;
+}
+
+Template Code (Recursive - C++)
+
+int binarySearchRecursive(vector<int>& arr, int low, int high, int target) {
+    if (low > high) return -1;
+    int mid = low + (high - low) / 2;
+    if (arr[mid] == target) return mid;
+    else if (arr[mid] < target)
+        return binarySearchRecursive(arr, mid + 1, high, target);
+    else
+        return binarySearchRecursive(arr, low, mid - 1, target);
+}
+
+
+⸻
+
+3. Complexity
+
+Case	Time Complexity	Space Complexity
+Best	O(1)	O(1)
+Average	O(log n)	O(1)
+Worst	O(log n)	O(1)
+
+
+⸻
+
+4. Common Binary Search Patterns
+
+Pattern 1: Standard Search
+
+Find the index of a target in a sorted array.
+👉 arr[mid] == target check.
+
+Pattern 2: Lower / Upper Bound
+
+Find the first or last occurrence of a number (handles duplicates).
+
+Pattern 3: Search on Answer
+
+Binary search on result space instead of array indices.
+Useful when:
+	•	Function is monotonic (true → false or vice versa)
+	•	Example: “Find minimum time / capacity / speed / day that satisfies condition”
+
+Pattern 4: Rotated Sorted Array
+
+Used to search elements in an array rotated at a pivot.
+
+Pattern 5: Peak Finding / Binary Search on Function
+
+Find local maxima/minima in arrays.
+
+⸻
+
+5. Binary Search Variations (with Examples)
+
+(a) First and Last Occurrence
+
+Problem: Given a sorted array, find the first and last position of a target element.
+
+Code:
+
+int firstOccurrence(vector<int>& arr, int target) {
+    int low = 0, high = arr.size() - 1, ans = -1;
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (arr[mid] >= target) high = mid - 1;
+        else low = mid + 1;
+        if (arr[mid] == target) ans = mid;
+    }
+    return ans;
+}
+
+
+⸻
+
+(b) Search Insert Position
+
+Problem: Find the index where an element should be inserted to maintain sorted order.
+
+LeetCode: Search Insert Position – #35
+
+⸻
+
+(c) Find Square Root (Integer)
+
+Problem: Given x, return floor(sqrt(x)) without using built-in functions.
+
+LeetCode: Sqrt(x) – #69
+
+Idea: Use binary search on range [0, x].
+If mid*mid <= x → move right, else left.
+
+⸻
+
+(d) Search in Rotated Sorted Array
+
+Problem: Array is sorted but rotated at a pivot; find target index.
+
+LeetCode: Search in Rotated Sorted Array – #33
+
+Approach:
+	1.	Check which half is sorted.
+	2.	Narrow search to sorted half containing the target.
+
+⸻
+
+(e) Minimum in Rotated Sorted Array
+
+LeetCode: Find Minimum in Rotated Sorted Array – #153
+
+Idea: Compare mid with rightmost element — shrink the unsorted half.
+
+⸻
+
+(f) Binary Search on Answer
+
+Used for problems like:
+	•	Allocate Books / Split Array
+	•	Aggressive Cows (minimum distance between cows)
+	•	Koko Eating Bananas
+	•	Capacity to Ship Packages Within D Days
+
+Example:
+LeetCode: Koko Eating Bananas – #875
+
+Approach:
+Search for the minimum eating speed k (1 → max(piles)) such that total hours ≤ H.
+
+⸻
+
+6. Problem Set (with Links)
+
+Problem	Description	Link
+Binary Search	Basic search in sorted array	https://leetcode.com/problems/binary-search/
+First Bad Version	Find first version that fails	https://leetcode.com/problems/first-bad-version/
+Search Insert Position	Find insert index	https://leetcode.com/problems/search-insert-position/
+Sqrt(x)	Integer square root	https://leetcode.com/problems/sqrtx/
+Search in Rotated Sorted Array	Find target in rotated array	https://leetcode.com/problems/search-in-rotated-sorted-array/
+Find Minimum in Rotated Sorted Array	Find smallest element	https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/
+Koko Eating Bananas	Minimum eating speed	https://leetcode.com/problems/koko-eating-bananas/
+Capacity To Ship Packages	Minimum ship capacity	https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/
+Peak Index in a Mountain Array	Find peak element	https://leetcode.com/problems/peak-index-in-a-mountain-array/
+Search a 2D Matrix	Search in 2D sorted grid	https://leetcode.com/problems/search-a-2d-matrix/
+
+
+⸻
+
+7. Common Traps and Edge Cases
+
+✅ Handle integer overflow:
+mid = low + (high - low) / 2 instead of (low + high)/2.
+
+✅ Infinite loops:
+Make sure low and high are updated correctly — no infinite midpoint.
+
+✅ Duplicates:
+Carefully decide whether to move high = mid or high = mid - 1.
+
+✅ Search boundaries:
+Always validate your “return” condition — low or high might represent the boundary you want.
+
+⸻
+
+8. Step-by-Step Reasoning Template
+
+Whenever DSA Sensei answers a question, follow this structure:
+
+Step 1: Understand the question.
+→ Identify if the problem involves a monotonic condition or sorted data.
+
+Step 2: Choose correct binary search variant.
+→ Classic search / Lower-Upper bound / Answer search.
+
+Step 3: Define low, high, and mid correctly.
+→ Prevent overflow and define termination condition.
+
+Step 4: Derive complexity.
+→ Time: O(log n), Space: O(1).
+
+Step 5: Code with clarity and check for off-by-one errors.
+
+⸻
+
+9. Visual Intuition
+
+Imagine you’re guessing a number between 1 and 100.
+Each guess halves the range — after ~7 guesses, you’ll always find the number.
+That’s binary search — every step cuts your search space in half.
+
+⸻
+
+10. Advanced Binary Search Tricks
+	•	Binary search on floating values: Used in problems like “Find square root up to 6 decimal places”.
+	•	Binary search with predicate function: Example:
+
+while (low < high) {
+    int mid = (low + high) / 2;
+    if (condition(mid)) high = mid;
+    else low = mid + 1;
+}
+
+
+	•	Binary search on infinite sorted array: Expand bounds exponentially until target < high.
+
+⸻
+
+11. Practice Checklist
+
+✅ Understand how binary search logic works (low/mid/high)
+✅ Implement standard binary search from scratch
+✅ Solve lower/upper bound problems
+✅ Apply to rotated arrays
+✅ Use binary search on answers (monotonic condition problems)
